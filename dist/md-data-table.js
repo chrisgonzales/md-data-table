@@ -236,7 +236,7 @@ function mdColumn($compile, $mdUtil) {
 
         if(angular.isFunction(headCtrl.onReorder)) {
           $mdUtil.nextTick(function () {
-            headCtrl.onReorder(headCtrl.order);
+            headCtrl.onReorder({order: headCtrl.order});
           });
         }
       });
@@ -826,7 +826,7 @@ function mdHead($compile) {
     restrict: 'A',
     scope: {
       order: '=?mdOrder',
-      onReorder: '=?mdOnReorder'
+      onReorder: '&?mdOnReorder'
     }
   };
 }
