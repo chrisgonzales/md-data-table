@@ -9,7 +9,7 @@
 
 angular.module('md.table.templates', ['md-table-pagination.html', 'md-table-progress.html', 'arrow-up.svg', 'navigate-before.svg', 'navigate-first.svg', 'navigate-last.svg', 'navigate-next.svg']);
 
-angular.module('md-table-pagination.html', []).run(['$templateCache', function($templateCache) {
+angular.module('md-table-pagination.html', []).run(['$templateCache', function ($templateCache) {
   $templateCache.put('md-table-pagination.html',
     '<div class="page-select" ng-if="$pagination.showPageSelect()">\n' +
     '  <div class="label">{{$pagination.label.page}}</div>\n' +
@@ -50,7 +50,7 @@ angular.module('md-table-pagination.html', []).run(['$templateCache', function($
     '</div>');
 }]);
 
-angular.module('md-table-progress.html', []).run(['$templateCache', function($templateCache) {
+angular.module('md-table-progress.html', []).run(['$templateCache', function ($templateCache) {
   $templateCache.put('md-table-progress.html',
     '<tr>\n' +
     '  <th colspan="{{columnCount()}}">\n' +
@@ -59,27 +59,27 @@ angular.module('md-table-progress.html', []).run(['$templateCache', function($te
     '</tr>');
 }]);
 
-angular.module('arrow-up.svg', []).run(['$templateCache', function($templateCache) {
+angular.module('arrow-up.svg', []).run(['$templateCache', function ($templateCache) {
   $templateCache.put('arrow-up.svg',
     '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></svg>');
 }]);
 
-angular.module('navigate-before.svg', []).run(['$templateCache', function($templateCache) {
+angular.module('navigate-before.svg', []).run(['$templateCache', function ($templateCache) {
   $templateCache.put('navigate-before.svg',
     '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>');
 }]);
 
-angular.module('navigate-first.svg', []).run(['$templateCache', function($templateCache) {
+angular.module('navigate-first.svg', []).run(['$templateCache', function ($templateCache) {
   $templateCache.put('navigate-first.svg',
     '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7 6 v12 h2 v-12 h-2z M17.41 7.41L16 6l-6 6 6 6 1.41-1.41L12.83 12z"/></svg>');
 }]);
 
-angular.module('navigate-last.svg', []).run(['$templateCache', function($templateCache) {
+angular.module('navigate-last.svg', []).run(['$templateCache', function ($templateCache) {
   $templateCache.put('navigate-last.svg',
     '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15 6 v12 h2 v-12 h-2z M8 6L6.59 7.41 11.17 12l-4.58 4.59L8 18l6-6z"/></svg>');
 }]);
 
-angular.module('navigate-next.svg', []).run(['$templateCache', function($templateCache) {
+angular.module('navigate-next.svg', []).run(['$templateCache', function ($templateCache) {
   $templateCache.put('navigate-next.svg',
     '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>');
 }]);
@@ -104,67 +104,73 @@ function mdBody() {
 angular.module('md.data.table').directive('mdCell', mdCell);
 
 function mdCell() {
-  
+
   function compile(tElement) {
     var select = tElement.find('md-select');
-    
+
     if(select.length) {
       select.addClass('md-table-select').attr('md-container-class', 'md-table-select');
     }
-    
+
     tElement.addClass('md-cell');
-    
+
     return postLink;
   }
-  
+
   // empty controller to be bind properties to in postLink function
   function Controller() {
-    
+
   }
-  
+
   function postLink(scope, element, attrs, ctrls) {
     var select = element.find('md-select');
     var cellCtrl = ctrls.shift();
     var tableCtrl = ctrls.shift();
-    
+
     if(attrs.ngClick) {
       element.addClass('md-clickable');
     }
-    
+
     if(select.length) {
       select.on('click', function (event) {
         event.stopPropagation();
       });
-      
+
       element.addClass('md-clickable').on('click', function (event) {
         event.stopPropagation();
         select[0].click();
       });
     }
-    
+
     cellCtrl.getTable = tableCtrl.getElement;
-    
+
     function getColumn() {
       return tableCtrl.$$columns[getIndex()];
     }
-    
+
     function getIndex() {
       return Array.prototype.indexOf.call(element.parent().children(), element[0]);
     }
-    
+
     scope.$watch(getColumn, function (column) {
       if(!column) {
         return;
       }
-      
+
       if(column.numeric) {
         element.addClass('md-numeric');
       } else {
         element.removeClass('md-numeric');
       }
+
+      if(column.nowrap) {
+        element.addClass('md-nowrap');
+      } else {
+        element.removeClass('md-nowrap');
+      }
     });
   }
-  
+
   return {
     controller: Controller,
     compile: compile,
@@ -172,6 +178,7 @@ function mdCell() {
     restrict: 'A'
   };
 }
+
 
 angular.module('md.data.table').directive('mdColumn', mdColumn);
 
@@ -226,6 +233,10 @@ function mdColumn($compile, $mdUtil) {
       return attrs.mdNumeric === '' || scope.numeric;
     }
 
+    function isNowrap() {
+      return attrs.mdNowrap === '' || scope.nowrap;
+    }
+
     function setOrder() {
       scope.$applyAsync(function () {
         if(isActive()) {
@@ -250,6 +261,12 @@ function mdColumn($compile, $mdUtil) {
       } else {
         element.removeClass('md-numeric');
       }
+
+      if(column.nowrap) {
+        element.addClass('md-nowrap');
+      } else {
+        element.removeClass('md-nowrap');
+      }
     }
 
     scope.getDirection = function () {
@@ -269,11 +286,15 @@ function mdColumn($compile, $mdUtil) {
     });
 
     scope.$watch(getIndex, function (index) {
-      updateColumn(index, {'numeric': isNumeric()});
+      updateColumn(index, {'numeric': isNumeric(), 'nowrap': isNowrap()});
     });
 
     scope.$watch(isNumeric, function (numeric) {
       updateColumn(getIndex(), {'numeric': numeric});
+    });
+
+    scope.$watch(isNowrap, function (nowrap) {
+      updateColumn(getIndex(), {'nowrap': nowrap});
     });
 
     scope.$watch('orderBy', function (orderBy) {
@@ -293,12 +314,14 @@ function mdColumn($compile, $mdUtil) {
     restrict: 'A',
     scope: {
       numeric: '=?mdNumeric',
+      nowrap: '=?mdNowrap',
       orderBy: '@?mdOrderBy'
     }
   };
 }
 
 mdColumn.$inject = ['$compile', '$mdUtil'];
+
 
 angular.module('md.data.table')
   .decorator('$controller', controllerDecorator)
@@ -832,6 +855,7 @@ function mdHead($compile) {
 }
 
 mdHead.$inject = ['$compile'];
+
 
 angular.module('md.data.table').directive('mdRow', mdRow);
 

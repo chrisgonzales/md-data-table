@@ -61,6 +61,12 @@ function mdCell() {
       } else {
         element.removeClass('md-numeric');
       }
+
+      if(column.nowrap) {
+        element.addClass('md-nowrap');
+      } else {
+        element.removeClass('md-nowrap');
+      }
     });
   }
   

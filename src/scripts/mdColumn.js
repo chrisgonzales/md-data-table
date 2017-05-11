@@ -53,6 +53,10 @@ function mdColumn($compile, $mdUtil) {
       return attrs.mdNumeric === '' || scope.numeric;
     }
 
+    function isNowrap() {
+      return attrs.mdNowrap === '' || scope.nowrap;
+    }
+
     function setOrder() {
       scope.$applyAsync(function () {
         if(isActive()) {
@@ -77,6 +81,12 @@ function mdColumn($compile, $mdUtil) {
       } else {
         element.removeClass('md-numeric');
       }
+
+      if(column.nowrap) {
+        element.addClass('md-nowrap');
+      } else {
+        element.removeClass('md-nowrap');
+      }
     }
 
     scope.getDirection = function () {
@@ -96,11 +106,15 @@ function mdColumn($compile, $mdUtil) {
     });
 
     scope.$watch(getIndex, function (index) {
-      updateColumn(index, {'numeric': isNumeric()});
+      updateColumn(index, {'numeric': isNumeric(), 'nowrap': isNowrap()});
     });
 
     scope.$watch(isNumeric, function (numeric) {
       updateColumn(getIndex(), {'numeric': numeric});
+    });
+
+    scope.$watch(isNowrap, function (nowrap) {
+      updateColumn(getIndex(), {'nowrap': nowrap});
     });
 
     scope.$watch('orderBy', function (orderBy) {
@@ -120,6 +134,7 @@ function mdColumn($compile, $mdUtil) {
     restrict: 'A',
     scope: {
       numeric: '=?mdNumeric',
+      nowrap: '=?mdNowrap',
       orderBy: '@?mdOrderBy'
     }
   };
